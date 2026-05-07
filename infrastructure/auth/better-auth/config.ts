@@ -1,13 +1,12 @@
-import { admin } from 'better-auth/plugins';
 import { betterAuth } from 'better-auth';
+import { admin } from 'better-auth/plugins';
 import { createAccessControl } from 'better-auth/plugins/access';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 
+import { PERMISSION_MAP } from '@/core/domain/auth/permissions';
 import { prisma } from '@/infrastructure/database/prisma/client';
 
-export const ac = createAccessControl({
-   task: ['create', 'read', 'update', 'delete', 'assign'],
-} as const);
+export const ac = createAccessControl(PERMISSION_MAP);
 
 const ownerRole = ac.newRole({
    task: ['create', 'read', 'update', 'delete', 'assign'],
@@ -30,7 +29,7 @@ export const auth = betterAuth({
       enabled: true,
       minPasswordLength: 8,
       autoSignIn: true,
-      requireEmailVerification: false, // set true when email sending is configured
+      requireEmailVerification: false, // set to true once email sending is configured
    },
 
    plugins: [
@@ -43,9 +42,9 @@ export const auth = betterAuth({
    ],
 
    session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 days
-      updateAge: 60 * 60 * 24, // refresh cookie if older than 1 day
-      freshAge: 60 * 60 * 24, // "fresh" threshold for sensitive operations
+      expiresIn: 60 * 60 * 24 * 7,
+      updateAge: 60 * 60 * 24,
+      freshAge: 60 * 60 * 24,
    },
 });
 
