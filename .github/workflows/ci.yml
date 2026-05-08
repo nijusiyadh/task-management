@@ -1,0 +1,150 @@
+name: CI / CD
+
+on:
+   push:
+      branches: [main]
+   pull_request:
+      branches: [main]
+   workflow_dispatch:
+      inputs:
+         environment:
+            description: Deployment environment
+            required: true
+            type: choice
+            options:
+               - preview
+               - production
+
+concurrency:
+   group: ${{ github.workflow }}-${{ github.ref }}
+   cancel-in-progress: true
+
+permissions:
+   contents: read
+   pull-requests: write
+   actions: read
+
+jobs:
+   lint-and-typecheck:
+      name: Lint & Type Check
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v4
+
+         - uses: actions/setup-node@v4
+           with:
+              node-version: 22
+
+         - run: corepack enable
+
+         - id: yarn-cache-dir
+           run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+         - uses: actions/cache@v4
+           with:
+              path: ${{ steps.yarn-cache-dir.outputs.dir }}
+              key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+              restore-keys: yarn-${{ runner.os }}-
+
+         - run: yarn install --immutable
+
+         - run: yarn lint
+         - run: yarn prettier --check .
+         - run: yarn tsc --noEmit
+
+   build:
+      name: Build Check
+      runs-on: ubuntu-latest
+      env:
+         POSTGRES_PRISMA_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
+         BETTER_AUTH_SECRET: ci-placeholder-secret
+         BETTER_AUTH_URL: http://localhost:3000
+      steps:
+         - uses: actions/checkout@v4
+
+         - uses: actions/setup-node@v4
+           with:
+              node-version: 22
+
+         - run: corepack enable
+
+         - id: yarn-cache-dir
+           run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+         - uses: actions/cache@v4
+           with:
+              path: ${{ steps.yarn-cache-dir.outputs.dir }}
+              key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+              restore-keys: yarn-${{ runner.os }}-
+
+         - uses: actions/cache@v4
+           with:
+              path: .next/cache
+              key: nextjs-${{ runner.os }}-${{ hashFiles('yarn.lock') }}-${{ hashFiles('**/*.ts', '**/*.tsx') }}
+              restore-keys: |
+                 nextjs-${{ runner.os }}-${{ hashFiles('yarn.lock') }}-
+                 nextjs-${{ runner.os }}-
+
+         - run: yarn install --immutable
+
+         - run: yarn build
+
+   deploy-preview:
+      name: Deploy Preview
+      runs-on: ubuntu-latest
+      needs: [lint-and-typecheck, build]
+      if: github.event_name == 'workflow_dispatch' && inputs.environment == 'preview'
+      environment:
+         name: preview
+         url: ${{ steps.deploy.outputs.url }}
+      env:
+         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+         VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      steps:
+         - uses: actions/checkout@v4
+           with:
+              ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+         - uses: actions/setup-node@v4
+           with:
+              node-version: 22
+
+         - run: npm install -g vercel@latest
+
+         - run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+         - run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+         - id: deploy
+           run: |
+              url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+              echo "url=$url" >> $GITHUB_OUTPUT
+
+   deploy-production:
+      name: Deploy Production
+      runs-on: ubuntu-latest
+      needs: [lint-and-typecheck, build]
+      if: github.event_name == 'workflow_dispatch' && inputs.environment == 'production'
+      environment:
+         name: production
+         url: ${{ steps.deploy.outputs.url }}
+      env:
+         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+         VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      steps:
+         - uses: actions/checkout@v4
+
+         - uses: actions/setup-node@v4
+           with:
+              node-version: 22
+
+         - run: npm install -g vercel@latest
+
+         - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+         - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+         - id: deploy
+           run: |
+              url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+              echo "url=$url" >> $GITHUB_OUTPUT
