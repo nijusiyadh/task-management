@@ -3,23 +3,27 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, User } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FieldError } from '@/components/shared';
-
-import { PasswordInput } from './password-input';
 import { ROUTES } from '@/constants/routes';
+import { registerUser } from '@/features/auth/api';
 import { registerSchema, type RegisterSchema } from '@/features/auth/schemas';
 
 import { AuthCard } from './auth-card';
+import { PasswordInput } from './password-input';
 
 const inputIconClass =
    'absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none';
 
 function RegisterForm() {
+   const router = useRouter();
+
    const {
       control,
       handleSubmit,
@@ -28,8 +32,20 @@ function RegisterForm() {
       resolver: zodResolver(registerSchema),
    });
 
-   const onSubmit = async () => {
-      // TODO: wire up to auth API
+   const onSubmit = async (data: RegisterSchema) => {
+      const { error } = await registerUser({
+         fullName: data.fullName,
+         email: data.email,
+         password: data.password,
+      });
+
+      if (error) {
+         toast.error(error.message ?? 'Something went wrong.');
+         return;
+      }
+
+      toast.success('Account created successfully.');
+      router.replace(ROUTES.home.path);
    };
 
    return (
@@ -40,6 +56,7 @@ function RegisterForm() {
             <p>
                Already have an account?{' '}
                <Link
+                  replace
                   href={ROUTES.login.path}
                   className="font-medium text-foreground underline-offset-4 hover:underline">
                   Sign in
@@ -130,7 +147,7 @@ function RegisterForm() {
                type="submit"
                loading={isSubmitting}
                className="mt-2 w-full hover:cursor-pointer">
-               Create account
+               {isSubmitting ? 'Creating...' : 'Create account'}
             </Button>
          </form>
       </AuthCard>

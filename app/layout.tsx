@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Urbanist, Geist } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
+import { Toaster } from '@/components/ui/sonner';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -24,7 +25,10 @@ export default function RootLayout({
       <html
          lang="en"
          className={cn(urbanist.variable, geist.variable, 'font-sans')}>
-         <body className="min-h-full flex flex-col">{children}</body>
+         <body className="min-h-full flex flex-col">
+            {children}
+            <Toaster richColors position="top-right" />
+         </body>
       </html>
    );
 }

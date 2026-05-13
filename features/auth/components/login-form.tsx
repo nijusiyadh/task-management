@@ -1,15 +1,18 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LayoutDashboard, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FieldError } from '@/components/shared';
 import { ROUTES } from '@/constants/routes';
+import { signInUser } from '@/features/auth/api';
 import { loginSchema, type LoginSchema } from '@/features/auth/schemas';
 
 import { AuthCard } from './auth-card';
@@ -19,6 +22,8 @@ const inputIconClass =
    'absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none';
 
 function LoginForm() {
+   const router = useRouter();
+
    const {
       control,
       handleSubmit,
@@ -27,8 +32,16 @@ function LoginForm() {
       resolver: zodResolver(loginSchema),
    });
 
-   const onSubmit = async () => {
-      // TODO: wire up to auth API
+   const onSubmit = async (data: LoginSchema) => {
+      const { error } = await signInUser(data);
+
+      if (error) {
+         toast.error(error.message ?? 'Failed to login user');
+         return;
+      }
+
+      toast.success('Logged in successfully.');
+      router.replace(ROUTES.home.path);
    };
 
    return (
@@ -39,6 +52,7 @@ function LoginForm() {
             <p>
                Don&apos;t have an account?{' '}
                <Link
+                  replace
                   href={ROUTES.register.path}
                   className="font-medium text-foreground underline-offset-4 hover:underline">
                   Sign up
@@ -97,7 +111,7 @@ function LoginForm() {
                type="submit"
                loading={isSubmitting}
                className="mt-2 w-full hover:cursor-pointer">
-               Sign in
+               {isSubmitting ? 'Signing in...' : 'Sign in'}
             </Button>
          </form>
       </AuthCard>
