@@ -109,11 +109,11 @@ jobs:
            with:
               node-version: 22
 
+         - run: corepack enable
+
          - run: npm install -g vercel@latest
 
          - run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-         - run: vercel env pull .env --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
          - run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
@@ -142,11 +142,11 @@ jobs:
            with:
               node-version: 22
 
+         - run: corepack enable
+
          - run: npm install -g vercel@latest
 
          - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-         - run: vercel env pull .env --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
          - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
