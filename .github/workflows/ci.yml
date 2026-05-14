@@ -122,7 +122,7 @@ jobs:
               url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
               echo "url=$url" >> $GITHUB_OUTPUT
 
-         - run: vercel alias ${{ steps.deploy.outputs.url }} task-management-preview.vercel.app --token=${{ secrets.VERCEL_TOKEN }} --force
+         - run: vercel alias ${{ steps.deploy.outputs.url }} task-management-preview.vercel.app --token=${{ secrets.VERCEL_TOKEN }}
 
    deploy-production:
       name: Deploy Production
