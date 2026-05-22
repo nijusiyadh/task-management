@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
-import { Urbanist, Geist } from 'next/font/google';
 import './globals.css';
-import { cn } from '@/lib/utils';
+import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/sonner';
+import { Urbanist, Geist } from 'next/font/google';
+import { cn } from '@/lib/utils';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
