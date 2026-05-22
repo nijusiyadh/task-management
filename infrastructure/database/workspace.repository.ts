@@ -1,0 +1,131 @@
+import {
+   PrismaClient,
+   Workspace as PrismaWorkspace,
+   WorkspaceMember as PrismaWorkspaceMember,
+} from './prisma/generated/client';
+import type { IWorkspacePort } from '@/core/ports/workspace/workspace.port';
+import type {
+   Workspace,
+   WorkspaceMember,
+   WorkspaceRole,
+} from '@/core/domain/workspace/workspace.type';
+
+export class WorkspaceRepository implements IWorkspacePort {
+   constructor(private readonly db: PrismaClient) {}
+
+   async createWorkspace(data: {
+      name: string;
+      slug: string;
+      description?: string;
+      ownerId: string;
+   }): Promise<Workspace> {
+      const workspace = await this.db.workspace.create({ data });
+      return this.toDomainWorkspace(workspace);
+   }
+
+   async getWorkspaceById(id: string): Promise<Workspace | null> {
+      const workspace = await this.db.workspace.findUnique({ where: { id } });
+      return workspace ? this.toDomainWorkspace(workspace) : null;
+   }
+
+   async getWorkspaceBySlug(slug: string): Promise<Workspace | null> {
+      const workspace = await this.db.workspace.findUnique({
+         where: { slug },
+      });
+      return workspace ? this.toDomainWorkspace(workspace) : null;
+   }
+
+   async getUserWorkspaces(userId: string): Promise<Workspace[]> {
+      const workspaces = await this.db.workspace.findMany({
+         where: {
+            OR: [
+               { ownerId: userId },
+               { workspaceMembers: { some: { userId } } },
+            ],
+         },
+      });
+      return workspaces.map((w) => this.toDomainWorkspace(w));
+   }
+
+   async deleteWorkspace(id: string): Promise<void> {
+      await this.db.workspace.delete({ where: { id } });
+   }
+
+   async updateWorkspace(
+      id: string,
+      data: Partial<Pick<Workspace, 'name' | 'description'>>
+   ): Promise<Workspace> {
+      const updated = await this.db.workspace.update({ where: { id }, data });
+      return this.toDomainWorkspace(updated);
+   }
+
+   async addMember(data: {
+      workspaceId: string;
+      userId: string;
+      role: WorkspaceRole;
+   }): Promise<WorkspaceMember> {
+      const member = await this.db.workspaceMember.create({
+         data,
+      });
+      return this.toDomainMember(member);
+   }
+
+   async getMember(
+      workspaceId: string,
+      userId: string
+   ): Promise<WorkspaceMember | null> {
+      const member = await this.db.workspaceMember.findUnique({
+         where: { workspaceId_userId: { userId, workspaceId } },
+      });
+      return member ? this.toDomainMember(member) : null;
+   }
+
+   async getMembers(workspaceId: string): Promise<WorkspaceMember[]> {
+      const members = await this.db.workspaceMember.findMany({
+         where: { workspaceId },
+      });
+      return members.map((m) => this.toDomainMember(m));
+   }
+
+   async removeMember(workspaceId: string, userId: string): Promise<void> {
+      await this.db.workspaceMember.deleteMany({
+         where: { userId, workspaceId },
+      });
+   }
+
+   async updateMemberRole(data: {
+      workspaceId: string;
+      userId: string;
+      role: WorkspaceRole;
+   }): Promise<WorkspaceMember> {
+      const updated = await this.db.workspaceMember.updateManyAndReturn({
+         where: { userId: data.userId, workspaceId: data.workspaceId },
+         data: { role: data.role },
+      });
+      return this.toDomainMember(updated[0]);
+   }
+
+   private toDomainWorkspace(data: PrismaWorkspace): Workspace {
+      return {
+         id: data.id,
+         name: data.name,
+         slug: data.slug,
+         description: data.description,
+         ownerId: data.ownerId,
+         createdAt: data.createdAt,
+         updatedAt: data.updatedAt,
+      };
+   }
+
+   private toDomainMember(data: PrismaWorkspaceMember): WorkspaceMember {
+      return {
+         id: data.id,
+         role: data.role,
+         userId: data.userId,
+         workspaceId: data.workspaceId,
+         joinedAt: data.joinedAt,
+         createdAt: data.createdAt,
+         updatedAt: data.updatedAt,
+      };
+   }
+}
