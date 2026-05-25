@@ -1,5 +1,4 @@
 import type { IAuthenticationPort } from '@/core/ports/auth/authentication.port';
-import type { IAuthorizationPort } from '@/core/ports/auth/authorization.port';
 import type { IWorkspacePort } from '@/core/ports/workspace/workspace.port';
 import type { IProjectPort } from '@/core/ports/project/project.port';
 import type { ICommentPort, ITaskPort } from '@/core/ports/task/task.port';
@@ -17,7 +16,6 @@ const betterAuthAdapter = new BetterAuthAdapter(auth);
 const taskRepository = new TaskRepository(prisma);
 
 export const authenticationService: IAuthenticationPort = betterAuthAdapter;
-export const authorizationService: IAuthorizationPort = betterAuthAdapter;
 
 export const workspaceService: IWorkspacePort = new WorkspaceRepository(prisma);
 export const projectService: IProjectPort = new ProjectRepository(prisma);
