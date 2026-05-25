@@ -2,7 +2,7 @@ import type { AuthSession } from '@/core/domain/auth/auth.type';
 import type { NextRequest, NextResponse } from 'next/server';
 import { ForbiddenError, UnauthorizedError } from '@/core/domain/auth/error';
 import { NotFoundError } from '@/core/domain/errors';
-import { authenticationService } from '@/infrastructure/container';
+import { authenticationService, logger } from '@/infrastructure/container';
 import { errorResponse } from './response';
 
 export function handleDomainError(err: unknown) {
@@ -18,7 +18,6 @@ export function handleDomainError(err: unknown) {
       return errorResponse({ statusCode: 404, message: err.message });
    }
 
-   console.error('[unhandled error]', err);
    return errorResponse({ statusCode: 500, message: 'Internal server error' });
 }
 
@@ -32,11 +31,35 @@ export function withAuth(handler: AuthHandler) {
       req: NextRequest,
       context: { params: Promise<Record<string, string>> }
    ): Promise<NextResponse> => {
+      const start = Date.now();
+      const { method, url } = req;
+
       try {
          const session = await authenticationService.requireSession();
-         return await handler(req, { ...context, session });
+         const response = await handler(req, { ...context, session });
+
+         logger.info('API request completed', {
+            method,
+            url,
+            status: response.status,
+            duration: `${Date.now() - start}ms`,
+            userId: session.userId,
+         });
+
+         return response;
       } catch (err) {
-         return handleDomainError(err);
+         const response = handleDomainError(err);
+         const logFn = response.status >= 500 ? 'error' : 'warn';
+
+         logger[logFn]('API request failed', {
+            method,
+            url,
+            status: response.status,
+            duration: `${Date.now() - start}ms`,
+            err,
+         });
+
+         return response;
       }
    };
 }
