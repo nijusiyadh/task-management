@@ -1,6 +1,6 @@
 import z from 'zod';
 
-const PASSWORD_MIN_LENGTH = 6;
+const PASSWORD_MIN_LENGTH = 8;
 
 const registerSchema = z
    .object({

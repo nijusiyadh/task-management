@@ -117,7 +117,7 @@ function RegisterForm() {
                      <PasswordInput
                         {...field}
                         id="password"
-                        placeholder="Min. 6 characters"
+                        placeholder="Min. 8 characters"
                         aria-invalid={!!fieldState.error}
                      />
                      <FieldError message={fieldState.error?.message} />

@@ -7,7 +7,14 @@ function formatZodErrors(err: ZodError): { field: string; message: string }[] {
    }));
 }
 
-export async function parseBody<T>(req: Request, schema: z.ZodType<T>) {
+type ParseSuccess<T> = { data: T; error: null };
+type ParseFailure = { data: null; error: { field: string; message: string }[] };
+type ParseResult<T> = ParseSuccess<T> | ParseFailure;
+
+export async function parseBody<T>(
+   req: Request,
+   schema: z.ZodType<T>
+): Promise<ParseResult<T>> {
    let body: unknown;
 
    try {
