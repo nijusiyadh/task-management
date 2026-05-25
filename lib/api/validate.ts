@@ -8,7 +8,17 @@ function formatZodErrors(err: ZodError): { field: string; message: string }[] {
 }
 
 export async function parseBody<T>(req: Request, schema: z.ZodType<T>) {
-   const body = await req.json();
+   let body: unknown;
+
+   try {
+      body = await req.json();
+   } catch {
+      return {
+         data: null,
+         error: [{ field: '', message: 'Invalid JSON body' }],
+      };
+   }
+
    const parsed = schema.safeParse(body);
 
    if (!parsed.success) {
