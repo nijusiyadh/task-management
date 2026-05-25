@@ -17,6 +17,7 @@ export class BetterAuthAdapter
       const response = await this.auth.api.getSession({
          headers: await headers(),
       });
+
       if (!response) return null;
 
       const { session, user } = response;
