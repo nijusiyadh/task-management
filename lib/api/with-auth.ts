@@ -1,8 +1,16 @@
 import type { AuthSession } from '@/core/domain/auth/auth.type';
+import type {
+   WorkspaceMember,
+   WorkspaceRole,
+} from '@/core/domain/workspace/workspace.type';
 import type { NextRequest, NextResponse } from 'next/server';
 import { ForbiddenError, UnauthorizedError } from '@/core/domain/auth/error';
 import { NotFoundError } from '@/core/domain/errors';
-import { authenticationService, logger } from '@/infrastructure/container';
+import {
+   authenticationService,
+   logger,
+   workspaceService,
+} from '@/infrastructure/container';
 import { errorResponse } from './response';
 
 export function handleDomainError(err: unknown) {
@@ -19,6 +27,17 @@ export function handleDomainError(err: unknown) {
    }
 
    return errorResponse({ statusCode: 500, message: 'Internal server error' });
+}
+
+export async function requireWorkspaceMember(
+   workspaceId: string,
+   userId: string,
+   roles?: WorkspaceRole[]
+): Promise<WorkspaceMember> {
+   const member = await workspaceService.getMember(workspaceId, userId);
+   if (!member) throw new ForbiddenError();
+   if (roles && !roles.includes(member.role)) throw new ForbiddenError();
+   return member;
 }
 
 type AuthHandler = (
