@@ -2,7 +2,6 @@
 
 import { LogOut, Settings, User, type LucideIcon } from 'lucide-react';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -23,8 +22,7 @@ import {
    DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ROUTES } from '@/constants/routes';
-import { signOut } from '@/infrastructure/auth/better-auth/client';
+import { useLogout } from '@/features/auth/hooks/use-logout';
 
 interface UserMenuProps {
    name: string;
@@ -87,13 +85,9 @@ export function UserMenu({ name, email }: UserMenuProps) {
                   </DropdownMenuLabel>
                </DropdownMenuGroup>
                <DropdownMenuSeparator />
-
                <MenuItem label="Profile" icon={User} onClick={() => {}} />
-
                <MenuItem label="Settings" icon={Settings} onClick={() => {}} />
-
                <DropdownMenuSeparator />
-
                <MenuItem
                   label="Sign out"
                   icon={LogOut}
@@ -120,14 +114,7 @@ function SignOutConfirmationModal({
    isOpen = false,
    closeModal,
 }: SignOutConfirmationModalProps) {
-   const router = useRouter();
-   const [isLoading, setIsLoading] = useState(false);
-
-   const handleSignOut = async () => {
-      setIsLoading(true);
-      await signOut();
-      router.replace(ROUTES.login.path);
-   };
+   const { mutate: logout, isPending: isLoading } = useLogout();
 
    return (
       <Dialog
@@ -153,7 +140,7 @@ function SignOutConfirmationModal({
                   variant="destructive"
                   loading={isLoading}
                   className="hover:cursor-pointer"
-                  onClick={handleSignOut}>
+                  onClick={() => logout()}>
                   Sign out
                </Button>
             </DialogFooter>
