@@ -1,14 +1,17 @@
 import type { ReactNode } from 'react';
 
+import { AppSidebar } from '@/components/layout/app-sidebar';
 import { Header } from '@/components/layout';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 export default function MainLayout({ children }: { children: ReactNode }) {
    return (
-      <>
-         <Header />
-         <main className="mx-auto w-full font-urbanist max-w-360 px-6 py-6">
-            {children}
-         </main>
-      </>
+      <SidebarProvider>
+         <AppSidebar />
+         <SidebarInset>
+            <Header />
+            <div className="w-full px-6 py-6 font-urbanist">{children}</div>
+         </SidebarInset>
+      </SidebarProvider>
    );
 }
