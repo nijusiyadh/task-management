@@ -19,7 +19,17 @@ export class WorkspaceRepository implements IWorkspacePort {
       description?: string;
       ownerId: string;
    }): Promise<Workspace> {
-      const workspace = await this.db.workspace.create({ data });
+      const workspace = await this.db.$transaction(async (tx) => {
+         const created = await tx.workspace.create({ data });
+         await tx.workspaceMember.create({
+            data: {
+               workspaceId: created.id,
+               userId: data.ownerId,
+               role: 'OWNER',
+            },
+         });
+         return created;
+      });
       return this.toDomainWorkspace(workspace);
    }
 

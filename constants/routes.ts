@@ -1,5 +1,6 @@
 type RouteEntry = { path: string };
-type Route = Record<string, RouteEntry>;
+type DynamicRouteEntry = (slug: string) => RouteEntry;
+type Route = Record<string, RouteEntry | DynamicRouteEntry>;
 
 export const ROUTES = {
    // auth
@@ -11,6 +12,12 @@ export const ROUTES = {
    projects: { path: '/projects' },
    members: { path: '/members' },
    settings: { path: '/settings' },
+
+   // workspace
+   workspace: (slug: string) => ({ path: `/workspaces/${slug}` }),
+   workspaceSettings: (slug: string) => ({
+      path: `/workspaces/${slug}/settings`,
+   }),
 } satisfies Route;
 
 export const PROTECTED_ROUTES: string[] = [
