@@ -41,7 +41,7 @@ function LoginForm() {
       }
 
       toast.success('Logged in successfully.');
-      router.replace(ROUTES.home.path);
+      router.replace(ROUTES.workspaces.path);
    };
 
    return (

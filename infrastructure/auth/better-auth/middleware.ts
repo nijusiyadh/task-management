@@ -19,7 +19,9 @@ export const betterAuthProxy = async (request: NextRequest) => {
    const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route);
 
    if (isAuthRoute && sessionCookie) {
-      return NextResponse.redirect(new URL(ROUTES.home.path, request.url));
+      return NextResponse.redirect(
+         new URL(ROUTES.workspaces.path, request.url)
+      );
    }
 
    const isProtected = PROTECTED_ROUTES.some(
