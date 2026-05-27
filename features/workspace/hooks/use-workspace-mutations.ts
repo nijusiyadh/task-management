@@ -20,24 +20,29 @@ function useCreateWorkspace() {
    });
 }
 
-function useUpdateWorkspace(id: string) {
+function useUpdateWorkspace(id: string, slug: string) {
    const client = useQueryClient();
 
    return useMutation({
       mutationFn: (data: { name?: string; description?: string }) =>
          updateWorkspace(id, data),
       onSuccess: async () => {
-         await client.invalidateQueries({
-            queryKey: QUERY_KEYS.workspaces.all,
-         });
-         await client.invalidateQueries({
-            queryKey: QUERY_KEYS.workspaces.details(id),
-         });
+         await Promise.all([
+            client.invalidateQueries({
+               queryKey: QUERY_KEYS.workspaces.all,
+            }),
+            client.invalidateQueries({
+               queryKey: QUERY_KEYS.workspaces.details(id),
+            }),
+            client.invalidateQueries({
+               queryKey: QUERY_KEYS.workspaces.bySlug(slug),
+            }),
+         ]);
       },
    });
 }
 
-function useDeleteWorkspace(id: string) {
+function useDeleteWorkspace(id: string, slug: string) {
    const client = useQueryClient();
 
    return useMutation({
@@ -47,6 +52,7 @@ function useDeleteWorkspace(id: string) {
             queryKey: QUERY_KEYS.workspaces.all,
          });
          client.removeQueries({ queryKey: QUERY_KEYS.workspaces.details(id) });
+         client.removeQueries({ queryKey: QUERY_KEYS.workspaces.bySlug(slug) });
       },
    });
 }

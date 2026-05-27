@@ -26,6 +26,7 @@ interface RenameWorkspaceDialogProps {
    currentName: string;
    open: boolean;
    onOpenChange: (open: boolean) => void;
+   workspaceSlug: string;
 }
 
 export function RenameWorkspaceDialog({
@@ -33,8 +34,9 @@ export function RenameWorkspaceDialog({
    currentName,
    open,
    onOpenChange,
+   workspaceSlug,
 }: RenameWorkspaceDialogProps) {
-   const { mutate, isPending } = useUpdateWorkspace(workspaceId);
+   const { mutate, isPending } = useUpdateWorkspace(workspaceId, workspaceSlug);
 
    const {
       register,

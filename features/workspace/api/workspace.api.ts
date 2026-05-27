@@ -12,6 +12,10 @@ async function getWorkspace(id: string): Promise<Workspace> {
    return httpClient.get(`/workspaces/${id}`);
 }
 
+async function getWorkspaceBySlug(slug: string): Promise<WorkspaceWithRole> {
+   return httpClient.get(`/workspaces/slug/${slug}`);
+}
+
 async function createWorkspace(data: {
    name: string;
    slug: string;
@@ -34,6 +38,7 @@ async function deleteWorkspace(id: string): Promise<void> {
 export {
    getWorkspaces,
    getWorkspace,
+   getWorkspaceBySlug,
    createWorkspace,
    updateWorkspace,
    deleteWorkspace,
