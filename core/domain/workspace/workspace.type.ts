@@ -20,6 +20,10 @@ type WorkspaceMember = {
    updatedAt: Date;
 };
 
-type WorkspaceWithRole = Workspace & { role: WorkspaceRole };
+type WorkspaceWithRole = Workspace & {
+   role: WorkspaceRole;
+   memberCount: number;
+   projectCount: number;
+};
 
 export type { WorkspaceRole, Workspace, WorkspaceMember, WorkspaceWithRole };
