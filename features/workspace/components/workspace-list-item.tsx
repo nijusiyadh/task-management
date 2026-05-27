@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 import { ROUTES } from '@/constants/routes';
-import type { Workspace } from '@/core/domain/workspace/workspace.type';
+import type { WorkspaceWithRole } from '@/core/domain/workspace/workspace.type';
 import { WorkspaceActionsMenu } from './workspace-actions-menu';
 
 function getWorkspaceHref(slug: string) {
@@ -11,7 +11,7 @@ function getWorkspaceHref(slug: string) {
 }
 
 interface WorkspaceListItemProps {
-   workspace: Workspace;
+   workspace: WorkspaceWithRole;
 }
 
 function WorkspaceAvatar({ name }: { name: string }) {
@@ -52,6 +52,7 @@ export function WorkspaceListItem({ workspace }: WorkspaceListItemProps) {
             workspaceId={workspace.id}
             workspaceName={workspace.name}
             workspaceSlug={workspace.slug}
+            role={workspace.role}
          />
       </div>
    );

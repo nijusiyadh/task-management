@@ -20,6 +20,7 @@ import {
    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ROUTES } from '@/constants/routes';
+import type { WorkspaceRole } from '@/core/domain/workspace/workspace.type';
 import { DeleteWorkspaceDialog } from './delete-workspace-dialog';
 import { RenameWorkspaceDialog } from './rename-workspace-dialog';
 
@@ -27,16 +28,21 @@ interface WorkspaceActionsMenuProps {
    workspaceId: string;
    workspaceName: string;
    workspaceSlug: string;
+   role: WorkspaceRole;
 }
 
 export function WorkspaceActionsMenu({
    workspaceId,
    workspaceName,
    workspaceSlug,
+   role,
 }: WorkspaceActionsMenuProps) {
    const router = useRouter();
    const [renameOpen, setRenameOpen] = useState(false);
    const [deleteOpen, setDeleteOpen] = useState(false);
+
+   const canRename = role === 'OWNER' || role === 'ADMIN';
+   const canDelete = role === 'OWNER';
 
    return (
       <>
@@ -59,14 +65,16 @@ export function WorkspaceActionsMenu({
                      <ExternalLink />
                      Open
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                     onClick={(e) => {
-                        e.stopPropagation();
-                        setRenameOpen(true);
-                     }}>
-                     <Pencil />
-                     Rename
-                  </DropdownMenuItem>
+                  {canRename && (
+                     <DropdownMenuItem
+                        onClick={(e) => {
+                           e.stopPropagation();
+                           setRenameOpen(true);
+                        }}>
+                        <Pencil />
+                        Rename
+                     </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                      onClick={(e) => {
                         e.stopPropagation();
@@ -78,19 +86,23 @@ export function WorkspaceActionsMenu({
                      Settings
                   </DropdownMenuItem>
                </DropdownMenuGroup>
-               <DropdownMenuSeparator />
-               <DropdownMenuGroup>
-                  <DropdownMenuItem
-                     variant="destructive"
-                     className="font-urbanist"
-                     onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteOpen(true);
-                     }}>
-                     <Trash2 />
-                     Delete
-                  </DropdownMenuItem>
-               </DropdownMenuGroup>
+               {canDelete && (
+                  <>
+                     <DropdownMenuSeparator />
+                     <DropdownMenuGroup>
+                        <DropdownMenuItem
+                           variant="destructive"
+                           className="font-urbanist"
+                           onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteOpen(true);
+                           }}>
+                           <Trash2 />
+                           Delete
+                        </DropdownMenuItem>
+                     </DropdownMenuGroup>
+                  </>
+               )}
             </DropdownMenuContent>
          </DropdownMenu>
 

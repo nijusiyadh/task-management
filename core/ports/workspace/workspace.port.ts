@@ -2,6 +2,7 @@ import {
    Workspace,
    WorkspaceMember,
    WorkspaceRole,
+   WorkspaceWithRole,
 } from '@/core/domain/workspace/workspace.type';
 
 interface IWorkspacePort {
@@ -19,8 +20,8 @@ interface IWorkspacePort {
    /** Finds a workspace by its unique slug, returns null if not found */
    getWorkspaceBySlug(slug: string): Promise<Workspace | null>;
 
-   /** Returns all workspaces the user is a member of */
-   getUserWorkspaces(userId: string): Promise<Workspace[]>;
+   /** Returns all workspaces the user is a member of, with their role in each */
+   getUserWorkspaces(userId: string): Promise<WorkspaceWithRole[]>;
 
    /** Updates workspace name or description */
    updateWorkspace(

@@ -5,7 +5,7 @@ import { FolderOpen, Search, SearchX } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Workspace } from '@/core/domain/workspace/workspace.type';
+import type { WorkspaceWithRole } from '@/core/domain/workspace/workspace.type';
 import { useWorkspaces } from '../hooks/use-workspace';
 import { WorkspaceListItem } from './workspace-list-item';
 
@@ -84,7 +84,7 @@ function WorkspaceListError() {
    );
 }
 
-function WorkspaceItems({ workspaces }: { workspaces: Workspace[] }) {
+function WorkspaceItems({ workspaces }: { workspaces: WorkspaceWithRole[] }) {
    return (
       <div className="grid gap-2">
          {workspaces.map((workspace) => (
