@@ -45,7 +45,7 @@ function RegisterForm() {
       }
 
       toast.success('Account created successfully.');
-      router.replace(ROUTES.home.path);
+      router.replace(ROUTES.workspaces.path);
    };
 
    return (

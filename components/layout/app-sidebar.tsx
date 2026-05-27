@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/sidebar';
 
 const NAV_ITEMS = [
-   { label: 'Workspaces', icon: LayoutDashboard, href: ROUTES.home.path },
+   { label: 'Workspaces', icon: LayoutDashboard, href: ROUTES.workspaces.path },
    { label: 'Projects', icon: FolderKanban, href: ROUTES.projects.path },
    { label: 'Members', icon: Users, href: ROUTES.members.path },
    { label: 'Settings', icon: Settings, href: ROUTES.settings.path },

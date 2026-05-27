@@ -8,7 +8,7 @@ export const ROUTES = {
    register: { path: '/register' },
 
    // main
-   home: { path: '/' },
+   workspaces: { path: '/workspaces' },
    projects: { path: '/projects' },
    members: { path: '/members' },
    settings: { path: '/settings' },
@@ -21,7 +21,7 @@ export const ROUTES = {
 } satisfies Route;
 
 export const PROTECTED_ROUTES: string[] = [
-   ROUTES.home.path,
+   ROUTES.workspaces.path,
    ROUTES.projects.path,
    ROUTES.members.path,
    ROUTES.settings.path,
