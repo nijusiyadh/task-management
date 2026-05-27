@@ -42,6 +42,7 @@ export function WorkspaceActionsMenu({
    const [deleteOpen, setDeleteOpen] = useState(false);
 
    const canRename = role === 'OWNER' || role === 'ADMIN';
+   const canAccessSettings = role === 'OWNER' || role === 'ADMIN';
    const canDelete = role === 'OWNER';
 
    return (
@@ -75,16 +76,18 @@ export function WorkspaceActionsMenu({
                         Rename
                      </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem
-                     onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(
-                           ROUTES.workspaceSettings(workspaceSlug).path
-                        );
-                     }}>
-                     <Settings />
-                     Settings
-                  </DropdownMenuItem>
+                  {canAccessSettings && (
+                     <DropdownMenuItem
+                        onClick={(e) => {
+                           e.stopPropagation();
+                           router.push(
+                              ROUTES.workspaceSettings(workspaceSlug).path
+                           );
+                        }}>
+                        <Settings />
+                        Settings
+                     </DropdownMenuItem>
+                  )}
                </DropdownMenuGroup>
                {canDelete && (
                   <>
