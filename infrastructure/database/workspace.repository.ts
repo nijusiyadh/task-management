@@ -59,12 +59,20 @@ export class WorkspaceRepository implements IWorkspacePort {
                where: { userId },
                select: { role: true },
             },
+            _count: {
+               select: {
+                  workspaceMembers: true,
+                  projects: true,
+               },
+            },
          },
       });
 
       return workspaces.map((w) => ({
          ...this.toDomainWorkspace(w),
          role: w.workspaceMembers[0].role as WorkspaceRole,
+         memberCount: w._count.workspaceMembers,
+         projectCount: w._count.projects,
       }));
    }
 

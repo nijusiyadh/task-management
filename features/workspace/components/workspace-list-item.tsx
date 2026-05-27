@@ -1,10 +1,26 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { FolderKanban, Users } from 'lucide-react';
 
 import { ROUTES } from '@/constants/routes';
-import type { WorkspaceWithRole } from '@/core/domain/workspace/workspace.type';
+import type {
+   WorkspaceRole,
+   WorkspaceWithRole,
+} from '@/core/domain/workspace/workspace.type';
 import { WorkspaceActionsMenu } from './workspace-actions-menu';
+
+const ROLE_LABEL: Record<WorkspaceRole, string> = {
+   OWNER: 'Owner',
+   ADMIN: 'Admin',
+   MEMBER: 'Member',
+};
+
+const ROLE_STYLE: Record<WorkspaceRole, string> = {
+   OWNER: 'bg-primary/10 text-primary',
+   ADMIN: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+   MEMBER: 'bg-muted text-muted-foreground',
+};
 
 function getWorkspaceHref(slug: string) {
    return ROUTES.workspace(slug).path;
@@ -22,6 +38,15 @@ function WorkspaceAvatar({ name }: { name: string }) {
    );
 }
 
+function RoleBadge({ role }: { role: WorkspaceRole }) {
+   return (
+      <span
+         className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${ROLE_STYLE[role]}`}>
+         {ROLE_LABEL[role]}
+      </span>
+   );
+}
+
 export function WorkspaceListItem({ workspace }: WorkspaceListItemProps) {
    const router = useRouter();
    const href = getWorkspaceHref(workspace.slug);
@@ -36,17 +61,25 @@ export function WorkspaceListItem({ workspace }: WorkspaceListItemProps) {
          <WorkspaceAvatar name={workspace.name} />
 
          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium">{workspace.name}</p>
+            <div className="flex items-center gap-2">
+               <p className="truncate font-medium">{workspace.name}</p>
+               <RoleBadge role={workspace.role} />
+            </div>
             <p className="truncate text-xs text-muted-foreground">
                /{workspace.slug}
             </p>
          </div>
 
-         {workspace.description && (
-            <p className="hidden max-w-xs truncate text-sm text-muted-foreground md:block">
-               {workspace.description}
-            </p>
-         )}
+         <div className="hidden shrink-0 items-center gap-4 text-xs text-muted-foreground sm:flex">
+            <span className="flex items-center gap-1">
+               <Users className="size-3.5" />
+               {workspace.memberCount}
+            </span>
+            <span className="flex items-center gap-1">
+               <FolderKanban className="size-3.5" />
+               {workspace.projectCount}
+            </span>
+         </div>
 
          <WorkspaceActionsMenu
             workspaceId={workspace.id}
