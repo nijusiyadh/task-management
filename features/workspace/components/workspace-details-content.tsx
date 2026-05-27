@@ -1,9 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { FolderKanban, Plus, Users } from 'lucide-react';
+import { AlertCircle, FolderKanban, Plus, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { CreateProjectDialog } from '@/features/project/components/create-project-dialog';
+import { ProjectCard } from '@/features/project/components/project-card';
+import { useWorkspaceProjects } from '@/features/project/hooks/use-project';
+import type { Project } from '@/core/domain/project/project.type';
 import { relativeTime } from '@/utils/date';
 import { useWorkspaceContext } from '../context/workspace-context';
 import { EditWorkspaceDialog } from './edit-workspace-dialog';
@@ -85,48 +90,135 @@ function WorkspaceStats() {
    );
 }
 
-function ProjectsSection() {
-   const { workspace } = useWorkspaceContext();
-   const canCreate = workspace.role === 'OWNER' || workspace.role === 'ADMIN';
+interface ProjectsListProps {
+   isPending: boolean;
+   isError: boolean;
+   projects: Project[] | undefined;
+   workspaceId: string;
+   workspaceSlug: string;
+   canManage: boolean;
+   canDelete: boolean;
+   onCreateClick: () => void;
+}
+
+function ProjectsList({
+   isPending,
+   isError,
+   projects,
+   workspaceId,
+   workspaceSlug,
+   canManage,
+   canDelete,
+   onCreateClick,
+}: ProjectsListProps) {
+   if (isPending) {
+      return (
+         <div className="grid gap-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+               <Skeleton key={i} className="h-14 w-full rounded-lg" />
+            ))}
+         </div>
+      );
+   }
+
+   if (isError) {
+      return (
+         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <AlertCircle className="size-4 shrink-0" />
+            <span>Failed to load projects. Please refresh the page.</span>
+         </div>
+      );
+   }
+
+   if (projects && projects.length > 0) {
+      return (
+         <div className="grid gap-2">
+            {projects.map((project) => (
+               <ProjectCard
+                  key={project.id}
+                  project={project}
+                  workspaceId={workspaceId}
+                  workspaceSlug={workspaceSlug}
+                  canManage={canManage}
+                  canDelete={canDelete}
+               />
+            ))}
+         </div>
+      );
+   }
 
    return (
-      <div className="grid gap-4">
-         <div className="flex items-center justify-between">
-            <div>
-               <h2 className="font-medium">Projects</h2>
-               <p className="text-sm text-muted-foreground">
-                  All projects in this workspace
-               </p>
+      <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed py-14 text-center">
+         <div className="flex size-11 items-center justify-center rounded-full bg-muted">
+            <FolderKanban className="size-5 text-muted-foreground" />
+         </div>
+         <div>
+            <p className="font-medium">No projects yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+               {canManage
+                  ? 'Create your first project to start tracking work.'
+                  : 'No projects have been created in this workspace yet.'}
+            </p>
+         </div>
+         {canManage && (
+            <Button variant="outline" size="sm" onClick={onCreateClick}>
+               <Plus />
+               New project
+            </Button>
+         )}
+      </div>
+   );
+}
+
+function ProjectsSection() {
+   const { workspace } = useWorkspaceContext();
+   const canManage = workspace.role === 'OWNER' || workspace.role === 'ADMIN';
+   const canDelete = workspace.role === 'OWNER' || workspace.role === 'ADMIN';
+   const [createOpen, setCreateOpen] = useState(false);
+
+   const {
+      data: projects,
+      isPending,
+      isError,
+   } = useWorkspaceProjects(workspace.id);
+
+   return (
+      <>
+         <div className="grid gap-4">
+            <div className="flex items-center justify-between">
+               <div>
+                  <h2 className="font-medium">Projects</h2>
+                  <p className="text-sm text-muted-foreground">
+                     All projects in this workspace
+                  </p>
+               </div>
+               {canManage && (
+                  <Button size="sm" onClick={() => setCreateOpen(true)}>
+                     <Plus />
+                     New project
+                  </Button>
+               )}
             </div>
-            {canCreate && (
-               <Button size="sm">
-                  <Plus />
-                  New project
-               </Button>
-            )}
+
+            <ProjectsList
+               isPending={isPending}
+               isError={isError}
+               projects={projects}
+               workspaceId={workspace.id}
+               workspaceSlug={workspace.slug}
+               canManage={canManage}
+               canDelete={canDelete}
+               onCreateClick={() => setCreateOpen(true)}
+            />
          </div>
 
-         {/* TODO: replace with real project list once projects feature is built */}
-         <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed py-14 text-center">
-            <div className="flex size-11 items-center justify-center rounded-full bg-muted">
-               <FolderKanban className="size-5 text-muted-foreground" />
-            </div>
-            <div>
-               <p className="font-medium">No projects yet</p>
-               <p className="mt-1 text-sm text-muted-foreground">
-                  {canCreate
-                     ? 'Create your first project to start tracking work.'
-                     : 'No projects have been created in this workspace yet.'}
-               </p>
-            </div>
-            {canCreate && (
-               <Button variant="outline" size="sm">
-                  <Plus />
-                  New project
-               </Button>
-            )}
-         </div>
-      </div>
+         <CreateProjectDialog
+            workspaceId={workspace.id}
+            workspaceSlug={workspace.slug}
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+         />
+      </>
    );
 }
 
