@@ -39,11 +39,28 @@ export class WorkspaceRepository implements IWorkspacePort {
       return workspace ? this.toDomainWorkspace(workspace) : null;
    }
 
-   async getWorkspaceBySlug(slug: string): Promise<Workspace | null> {
+   async getWorkspaceBySlug(
+      slug: string
+   ): Promise<
+      (Workspace & { memberCount: number; projectCount: number }) | null
+   > {
       const workspace = await this.db.workspace.findUnique({
          where: { slug },
+         include: {
+            _count: {
+               select: {
+                  workspaceMembers: true,
+                  projects: true,
+               },
+            },
+         },
       });
-      return workspace ? this.toDomainWorkspace(workspace) : null;
+      if (!workspace) return null;
+      return {
+         ...this.toDomainWorkspace(workspace),
+         memberCount: workspace._count.workspaceMembers,
+         projectCount: workspace._count.projects,
+      };
    }
 
    async getUserWorkspaces(userId: string): Promise<WorkspaceWithRole[]> {

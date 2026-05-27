@@ -17,8 +17,12 @@ interface IWorkspacePort {
    /** Finds a workspace by its ID, returns null if not found */
    getWorkspaceById(id: string): Promise<Workspace | null>;
 
-   /** Finds a workspace by its unique slug, returns null if not found */
-   getWorkspaceBySlug(slug: string): Promise<Workspace | null>;
+   /** Finds a workspace by its unique slug with member/project counts, returns null if not found */
+   getWorkspaceBySlug(
+      slug: string
+   ): Promise<
+      (Workspace & { memberCount: number; projectCount: number }) | null
+   >;
 
    /** Returns all workspaces the user is a member of, with their role in each */
    getUserWorkspaces(userId: string): Promise<WorkspaceWithRole[]>;
