@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { FolderKanban, Users } from 'lucide-react';
 
+import { relativeTime } from '@/utils/date';
+
 import { ROUTES } from '@/constants/routes';
 import type {
    WorkspaceRole,
@@ -71,22 +73,31 @@ export function WorkspaceListItem({ workspace }: WorkspaceListItemProps) {
          </div>
 
          <div className="hidden shrink-0 items-center gap-4 text-xs text-muted-foreground sm:flex">
-            <span className="flex items-center gap-1">
-               <Users className="size-3.5" />
+            <span
+               className="flex items-center gap-1"
+               aria-label={`${workspace.memberCount} ${workspace.memberCount === 1 ? 'member' : 'members'}`}>
+               <Users className="size-3.5" aria-hidden />
                {workspace.memberCount}
             </span>
-            <span className="flex items-center gap-1">
-               <FolderKanban className="size-3.5" />
+            <span
+               className="flex items-center gap-1"
+               aria-label={`${workspace.projectCount} ${workspace.projectCount === 1 ? 'project' : 'projects'}`}>
+               <FolderKanban className="size-3.5" aria-hidden />
                {workspace.projectCount}
+            </span>
+            <span aria-label={`Created ${relativeTime(workspace.createdAt)}`}>
+               {relativeTime(workspace.createdAt)}
             </span>
          </div>
 
-         <WorkspaceActionsMenu
-            workspaceId={workspace.id}
-            workspaceName={workspace.name}
-            workspaceSlug={workspace.slug}
-            role={workspace.role}
-         />
+         {workspace.role !== 'MEMBER' && (
+            <WorkspaceActionsMenu
+               workspaceId={workspace.id}
+               workspaceName={workspace.name}
+               workspaceSlug={workspace.slug}
+               role={workspace.role}
+            />
+         )}
       </div>
    );
 }

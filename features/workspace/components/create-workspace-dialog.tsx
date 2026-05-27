@@ -8,6 +8,7 @@ import type { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
    Dialog,
    DialogContent,
@@ -96,7 +97,14 @@ export function CreateWorkspaceDialog({
                </div>
 
                <div className="grid gap-1.5 font-urbanist">
-                  <Label htmlFor="slug">Slug</Label>
+                  <div className="flex items-center justify-between">
+                     <Label htmlFor="slug">Slug</Label>
+                     {!errors.slug && (
+                        <span className="text-xs text-muted-foreground">
+                           auto-generated
+                        </span>
+                     )}
+                  </div>
                   <Input
                      id="slug"
                      placeholder="my-workspace"
@@ -116,7 +124,7 @@ export function CreateWorkspaceDialog({
                      Description{' '}
                      <span className="text-muted-foreground">(optional)</span>
                   </Label>
-                  <Input
+                  <Textarea
                      id="description"
                      className="font-urbanist"
                      placeholder="What is this workspace for?"
