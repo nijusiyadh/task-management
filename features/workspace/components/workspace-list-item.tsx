@@ -6,23 +6,9 @@ import { FolderKanban, Users } from 'lucide-react';
 import { relativeTime } from '@/utils/date';
 
 import { ROUTES } from '@/constants/routes';
-import type {
-   WorkspaceRole,
-   WorkspaceWithRole,
-} from '@/core/domain/workspace/workspace.type';
+import type { WorkspaceWithRole } from '@/core/domain/workspace/workspace.type';
+import { RoleBadge } from './role-badge';
 import { WorkspaceActionsMenu } from './workspace-actions-menu';
-
-const ROLE_LABEL: Record<WorkspaceRole, string> = {
-   OWNER: 'Owner',
-   ADMIN: 'Admin',
-   MEMBER: 'Member',
-};
-
-const ROLE_STYLE: Record<WorkspaceRole, string> = {
-   OWNER: 'bg-primary/10 text-primary',
-   ADMIN: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-   MEMBER: 'bg-muted text-muted-foreground',
-};
 
 function getWorkspaceHref(slug: string) {
    return ROUTES.workspace(slug).path;
@@ -37,15 +23,6 @@ function WorkspaceAvatar({ name }: { name: string }) {
       <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-semibold text-primary">
          {name.charAt(0).toUpperCase()}
       </div>
-   );
-}
-
-function RoleBadge({ role }: { role: WorkspaceRole }) {
-   return (
-      <span
-         className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${ROLE_STYLE[role]}`}>
-         {ROLE_LABEL[role]}
-      </span>
    );
 }
 
