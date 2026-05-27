@@ -1,7 +1,10 @@
 import { httpClient } from '@/infrastructure/client-container';
-import type { Workspace } from '@/core/domain/workspace/workspace.type';
+import type {
+   Workspace,
+   WorkspaceWithRole,
+} from '@/core/domain/workspace/workspace.type';
 
-async function getWorkspaces(): Promise<Workspace[]> {
+async function getWorkspaces(): Promise<WorkspaceWithRole[]> {
    return httpClient.get('/workspaces');
 }
 

@@ -8,6 +8,7 @@ import type {
    Workspace,
    WorkspaceMember,
    WorkspaceRole,
+   WorkspaceWithRole,
 } from '@/core/domain/workspace/workspace.type';
 
 export class WorkspaceRepository implements IWorkspacePort {
@@ -19,7 +20,17 @@ export class WorkspaceRepository implements IWorkspacePort {
       description?: string;
       ownerId: string;
    }): Promise<Workspace> {
-      const workspace = await this.db.workspace.create({ data });
+      const workspace = await this.db.$transaction(async (tx) => {
+         const created = await tx.workspace.create({ data });
+         await tx.workspaceMember.create({
+            data: {
+               workspaceId: created.id,
+               userId: data.ownerId,
+               role: 'OWNER',
+            },
+         });
+         return created;
+      });
       return this.toDomainWorkspace(workspace);
    }
 
@@ -35,7 +46,7 @@ export class WorkspaceRepository implements IWorkspacePort {
       return workspace ? this.toDomainWorkspace(workspace) : null;
    }
 
-   async getUserWorkspaces(userId: string): Promise<Workspace[]> {
+   async getUserWorkspaces(userId: string): Promise<WorkspaceWithRole[]> {
       const workspaces = await this.db.workspace.findMany({
          where: {
             OR: [
@@ -43,8 +54,18 @@ export class WorkspaceRepository implements IWorkspacePort {
                { workspaceMembers: { some: { userId } } },
             ],
          },
+         include: {
+            workspaceMembers: {
+               where: { userId },
+               select: { role: true },
+            },
+         },
       });
-      return workspaces.map((w) => this.toDomainWorkspace(w));
+
+      return workspaces.map((w) => ({
+         ...this.toDomainWorkspace(w),
+         role: w.workspaceMembers[0].role as WorkspaceRole,
+      }));
    }
 
    async deleteWorkspace(id: string): Promise<void> {
