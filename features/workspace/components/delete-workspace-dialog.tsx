@@ -17,6 +17,7 @@ interface DeleteWorkspaceDialogProps {
    workspaceName: string;
    open: boolean;
    onOpenChange: (open: boolean) => void;
+   workspaceSlug: string;
 }
 
 export function DeleteWorkspaceDialog({
@@ -24,8 +25,9 @@ export function DeleteWorkspaceDialog({
    workspaceName,
    open,
    onOpenChange,
+   workspaceSlug,
 }: DeleteWorkspaceDialogProps) {
-   const { mutate, isPending } = useDeleteWorkspace(workspaceId);
+   const { mutate, isPending } = useDeleteWorkspace(workspaceId, workspaceSlug);
 
    const handleDelete = () => {
       mutate(undefined, {

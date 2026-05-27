@@ -1,5 +1,9 @@
 import { QUERY_KEYS } from '@/features/common/constants';
-import { getWorkspaces, getWorkspace } from '../api/workspace.api';
+import {
+   getWorkspaces,
+   getWorkspace,
+   getWorkspaceBySlug,
+} from '../api/workspace.api';
 import { useQuery } from '@tanstack/react-query';
 
 function useWorkspaces({ enabled = true }: { enabled?: boolean }) {
@@ -18,4 +22,12 @@ function useWorkspace(id: string) {
    });
 }
 
-export { useWorkspaces, useWorkspace };
+function useWorkspaceBySlug(slug: string) {
+   return useQuery({
+      queryKey: QUERY_KEYS.workspaces.bySlug(slug),
+      queryFn: () => getWorkspaceBySlug(slug),
+      enabled: !!slug,
+   });
+}
+
+export { useWorkspaces, useWorkspace, useWorkspaceBySlug };

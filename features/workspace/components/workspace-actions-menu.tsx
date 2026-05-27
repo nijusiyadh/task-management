@@ -114,6 +114,7 @@ export function WorkspaceActionsMenu({
             currentName={workspaceName}
             open={renameOpen}
             onOpenChange={setRenameOpen}
+            workspaceSlug={workspaceSlug}
          />
 
          <DeleteWorkspaceDialog
@@ -121,6 +122,7 @@ export function WorkspaceActionsMenu({
             workspaceName={workspaceName}
             open={deleteOpen}
             onOpenChange={setDeleteOpen}
+            workspaceSlug={workspaceSlug}
          />
       </>
    );
