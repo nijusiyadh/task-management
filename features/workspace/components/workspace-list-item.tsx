@@ -48,13 +48,11 @@ export function WorkspaceListItem({ workspace }: WorkspaceListItemProps) {
             </p>
          )}
 
-         <div onClick={(e) => e.stopPropagation()}>
-            <WorkspaceActionsMenu
-               workspaceId={workspace.id}
-               workspaceName={workspace.name}
-               workspaceSlug={workspace.slug}
-            />
-         </div>
+         <WorkspaceActionsMenu
+            workspaceId={workspace.id}
+            workspaceName={workspace.name}
+            workspaceSlug={workspace.slug}
+         />
       </div>
    );
 }
