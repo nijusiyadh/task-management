@@ -18,6 +18,7 @@ interface DeleteWorkspaceDialogProps {
    open: boolean;
    onOpenChange: (open: boolean) => void;
    workspaceSlug: string;
+   onSuccess?: () => void;
 }
 
 export function DeleteWorkspaceDialog({
@@ -26,6 +27,7 @@ export function DeleteWorkspaceDialog({
    open,
    onOpenChange,
    workspaceSlug,
+   onSuccess,
 }: DeleteWorkspaceDialogProps) {
    const { mutate, isPending } = useDeleteWorkspace(workspaceId, workspaceSlug);
 
@@ -34,6 +36,7 @@ export function DeleteWorkspaceDialog({
          onSuccess: () => {
             onOpenChange(false);
             toast.success('Workspace deleted');
+            onSuccess?.();
          },
          onError: () => toast.error('Failed to delete workspace'),
       });

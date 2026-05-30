@@ -69,8 +69,6 @@ export function WorkspaceListItem({ workspace }: WorkspaceListItemProps) {
 
          {workspace.role !== 'MEMBER' && (
             <WorkspaceActionsMenu
-               workspaceId={workspace.id}
-               workspaceName={workspace.name}
                workspaceSlug={workspace.slug}
                role={workspace.role}
             />
