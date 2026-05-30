@@ -1,6 +1,7 @@
 export const QUERY_KEY = {
    workspaces: 'workspaces',
    projects: 'projects',
+   members: 'members',
 };
 
 export const QUERY_KEYS = {
@@ -13,5 +14,8 @@ export const QUERY_KEYS = {
       all: (workspaceId: string) => [QUERY_KEY.projects, workspaceId] as const,
       details: (workspaceId: string, projectId: string) =>
          [QUERY_KEY.projects, workspaceId, projectId] as const,
+   },
+   members: {
+      all: (workspaceId: string) => [QUERY_KEY.members, workspaceId] as const,
    },
 };

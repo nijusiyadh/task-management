@@ -1,6 +1,7 @@
 import {
    Workspace,
    WorkspaceMember,
+   WorkspaceMemberWithUser,
    WorkspaceRole,
    WorkspaceWithRole,
 } from '@/core/domain/workspace/workspace.type';
@@ -54,6 +55,9 @@ interface IWorkspacePort {
 
    /** Returns all members of a workspace */
    getMembers(workspaceId: string): Promise<WorkspaceMember[]>;
+
+   /** Returns all members of a workspace with their user profile */
+   getMembersWithUsers(workspaceId: string): Promise<WorkspaceMemberWithUser[]>;
 
    /** Updates the role of an existing workspace member */
    updateMemberRole(data: {

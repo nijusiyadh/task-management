@@ -26,4 +26,22 @@ type WorkspaceWithRole = Workspace & {
    projectCount: number;
 };
 
-export type { WorkspaceRole, Workspace, WorkspaceMember, WorkspaceWithRole };
+type WorkspaceMemberUser = {
+   id: string;
+   name: string;
+   email: string;
+   image: string | null;
+};
+
+type WorkspaceMemberWithUser = WorkspaceMember & {
+   user: WorkspaceMemberUser;
+};
+
+export type {
+   WorkspaceRole,
+   Workspace,
+   WorkspaceMember,
+   WorkspaceMemberUser,
+   WorkspaceMemberWithUser,
+   WorkspaceWithRole,
+};
