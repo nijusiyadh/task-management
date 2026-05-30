@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { AlertCircle, FolderKanban, Plus, Users } from 'lucide-react';
+import { ROUTES } from '@/constants/routes';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -69,13 +71,15 @@ function WorkspaceStats() {
 
    return (
       <div className="flex flex-wrap gap-3">
-         <div className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-sm text-muted-foreground">
+         <Link
+            href={ROUTES.workspaceMembers(workspace.slug).path}
+            className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground">
             <Users className="size-3.5" />
             <span>
                {workspace.memberCount}{' '}
                {workspace.memberCount === 1 ? 'member' : 'members'}
             </span>
-         </div>
+         </Link>
          <div className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-sm text-muted-foreground">
             <FolderKanban className="size-3.5" />
             <span>

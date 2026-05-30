@@ -15,6 +15,9 @@ export const ROUTES = {
 
    // workspace
    workspace: (slug: string) => ({ path: `/workspaces/${slug}` }),
+   workspaceMembers: (slug: string) => ({
+      path: `/workspaces/${slug}/members`,
+   }),
    workspaceSettings: (slug: string) => ({
       path: `/workspaces/${slug}/settings`,
    }),

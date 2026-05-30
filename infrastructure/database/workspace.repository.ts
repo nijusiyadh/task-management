@@ -7,6 +7,7 @@ import type { IWorkspacePort } from '@/core/ports/workspace/workspace.port';
 import type {
    Workspace,
    WorkspaceMember,
+   WorkspaceMemberWithUser,
    WorkspaceRole,
    WorkspaceWithRole,
 } from '@/core/domain/workspace/workspace.type';
@@ -131,6 +132,29 @@ export class WorkspaceRepository implements IWorkspacePort {
          where: { workspaceId },
       });
       return members.map((m) => this.toDomainMember(m));
+   }
+
+   async getMembersWithUsers(
+      workspaceId: string
+   ): Promise<WorkspaceMemberWithUser[]> {
+      const members = await this.db.workspaceMember.findMany({
+         where: { workspaceId },
+         include: {
+            user: {
+               select: { id: true, name: true, email: true, image: true },
+            },
+         },
+         orderBy: { joinedAt: 'asc' },
+      });
+      return members.map((m) => ({
+         ...this.toDomainMember(m),
+         user: {
+            id: m.user.id,
+            name: m.user.name,
+            email: m.user.email,
+            image: m.user.image,
+         },
+      }));
    }
 
    async removeMember(workspaceId: string, userId: string): Promise<void> {
